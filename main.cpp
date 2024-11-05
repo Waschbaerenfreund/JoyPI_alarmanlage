@@ -15,9 +15,12 @@ int codeabfrage()
 
 masterpin zum deaktivieren des alarms
 */
+
+// 
 #include <unistd.h>
 #include <iostream>
 #include <string>
+#include <wiringPi.h>
 
 #include "MFRC522.h"
 const string richtiger_chip = "platzhalter";
