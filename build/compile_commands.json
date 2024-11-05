@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/pi/Desktop/waschbaerenfreunde/alarmanlage/build",
-  "command": "/usr/bin/aarch64-linux-gnu-g++   -g -o CMakeFiles/Alarmanlage.dir/main.o -c /home/pi/Desktop/waschbaerenfreunde/alarmanlage/main.cpp",
-  "file": "/home/pi/Desktop/waschbaerenfreunde/alarmanlage/main.cpp"
-}
-]

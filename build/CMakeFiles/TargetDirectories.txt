@@ -1,3 +1,0 @@
-/home/pi/Desktop/waschbaerenfreunde/alarmanlage/build/CMakeFiles/Alarmanlage.dir
-/home/pi/Desktop/waschbaerenfreunde/alarmanlage/build/CMakeFiles/edit_cache.dir
-/home/pi/Desktop/waschbaerenfreunde/alarmanlage/build/CMakeFiles/rebuild_cache.dir
