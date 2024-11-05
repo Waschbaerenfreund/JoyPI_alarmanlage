@@ -28,6 +28,7 @@ void delay(int ms){
   usleep(ms*1000);
 }
 
+
 int rfid_kontrolle()
 {
   MFRC522 mfrc;
