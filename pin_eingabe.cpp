@@ -77,6 +77,15 @@ void loop() {
         }
     }
 }
+bool checkCode(const char* correctCode) {
+    if (strcmp(inputCode, correctCode) == 0) {
+        std::cout << "Correct code entered!" << std::endl;
+        return true;
+    } else {
+        std::cout << "Incorrect code. Try again." << std::endl;
+        return false;
+    }
+}
 
 int main() {
     setup();
