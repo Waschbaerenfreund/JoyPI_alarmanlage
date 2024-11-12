@@ -16,7 +16,6 @@ int codeabfrage()
 masterpin zum deaktivieren des alarms
 */
 
-// 
 #include <unistd.h>
 #include <iostream>
 #include <string>
@@ -72,5 +71,7 @@ int eingabe_zum_scharfschalten()
             // abfrage ob aktiviern oder deaktivieren
         }
     }
+
+    return 0;
 } 
 
