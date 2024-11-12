@@ -30,13 +30,8 @@ void delay(int ms){
   usleep(ms*1000);
 }
 
-
-int rfid_kontrolle()
+int main ()
 {
-  MFRC522 mfrc;
-
-  mfrc.PCD_Init();
-
   while(true)
   {
     // Look for a card
@@ -55,13 +50,23 @@ int rfid_kontrolle()
       }
     }
     return 0;
-  }
+  } 
+
+int rfid_kontrolle()
+{
+  MFRC522 mfrc;
+
+  mfrc.PCD_Init();
+
+}
 
 int codeabfrage()
 {
     // zähler für 3 durchläufe oder ne schleife
     return 0;
 }
+
+
 int eingabe_zum_scharfschalten()
 {
     if(rfid_kontrolle())
@@ -75,3 +80,25 @@ int eingabe_zum_scharfschalten()
     return 0;
 } 
 
+
+int main ()
+{
+  while(true)
+  {
+    // Look for a card
+    if(mfrc.PICC_IsNewCardPresent()){
+
+
+        // Output the serial
+        string id = mfrc.uid.ToString();
+        if( id == richtiger_chip)
+        {
+            //ausgabe auf lcd "rfid korrekt, bitte code eingeben"
+            return 1;
+        }
+
+        delay(1000);
+      }
+    }
+    return 0;
+  } 
