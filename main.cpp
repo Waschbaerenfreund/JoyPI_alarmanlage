@@ -24,7 +24,12 @@ int main(){
 
         // Output the serial
         string id = mfrc.uid.ToString();
-        cout << id << endl << flush;
+        if(id == "5B1F8D7§"){
+          cout << "Welcome, Master!" << endl << flush;
+        } else {
+          cout << "Access Denied!" << endl << flush;
+        }
+       // cout << id << endl << flush;
 
         delay(1000);
       }
