@@ -7,34 +7,43 @@
 using namespace std;
 
 void delay(int ms){
-  usleep(ms*1000);
+    usleep(ms * 1000);
 }
 
+bool rfid_kontrolle(MFRC522 &mfrc);
+
 int main(){
-  MFRC522 mfrc;
+    MFRC522 mfrc;
+    mfrc.PCD_Init();
 
-  mfrc.PCD_Init();
-
-  while(true){
-    // Look for a card
-    if(mfrc.PICC_IsNewCardPresent()){
-
-      // Try to read the serial...
-      if(mfrc.PICC_ReadCardSerial()){
-
-        // Output the serial
-        string id = mfrc.uid.ToString();
-        if(id == "5B1F8D7§"){
-          cout << "Welcome, Master!" << endl << flush;
-        } else {
-          cout << "Access Denied!" << endl << flush;
+    while(true){
+        if (rfid_kontrolle(mfrc)) {
+            cout << "Karte erkannt!" << endl;
         }
-       // cout << id << endl << flush;
-
-        delay(1000);
-      }
+        delay(100); // Reduziere CPU-Auslastung
     }
-  }
 
-  return 0;
+    return 0;
+}
+
+bool rfid_kontrolle(MFRC522 &mfrc)
+{
+    bool ergebniss = false;
+
+    // Look for a card
+    if (mfrc.PICC_IsNewCardPresent())
+    {
+        // Try to read the serial...
+        if (mfrc.PICC_ReadCardSerial())
+        {
+            // Output the serial
+            string id = mfrc.uid.ToString();
+            if (id == "5B1F8D73")
+            {
+                ergebniss = true; // Setze auf true statt 1
+            }
+            delay(1000);
+        }
+    }
+    return ergebniss;
 }
