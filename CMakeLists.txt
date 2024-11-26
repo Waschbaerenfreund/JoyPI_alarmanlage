@@ -18,8 +18,9 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
 find_library(FMT_LIBRARIES NAMES fmt)
 find_library(SPI_LIBRARIES NAMES spidev)
+find_library(MFRC522_LIBRARIES NAMES mfrc522) # Add MFRC522 library
 
-target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES} ${FMT_LIBRARIES} ${SPI_LIBRARIES})
+target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES} ${FMT_LIBRARIES} ${SPI_LIBRARIES} ${MFRC522_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

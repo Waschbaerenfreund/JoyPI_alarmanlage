@@ -75,13 +75,11 @@ int eingabe_zum_scharfschalten()
 }
 
 int main() {
+    PinEingabe pinEingabe;
+    pinEingabe.setup();
+
     while (true) {
-        // Aufruf der Funktion aus pin_eingabe.cpp
-        int result = pin_eingabe(); // Annahme: pin_eingabe() ist die Funktion, die getestet werden soll
-
-        // Ausgabe des Ergebnisses
-        cout << "Ergebnis der Pin-Eingabe: " << result << endl;
-
+        pinEingabe.loop();
         // Kurze Verzögerung, um die Schleife nicht zu schnell laufen zu lassen
         delay(1000);
     }
