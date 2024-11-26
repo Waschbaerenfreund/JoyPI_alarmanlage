@@ -5,6 +5,7 @@
 #include "MFRC522.h"
 
 using namespace std;
+const string karte = "5B1F8D73";
 
 void delay(int ms){
     usleep(ms * 1000);
@@ -22,7 +23,6 @@ int main(){
         }
         delay(100); // Reduziere CPU-Auslastung
     }
-
     return 0;
 }
 
@@ -38,7 +38,7 @@ bool rfid_kontrolle(MFRC522 &mfrc)
         {
             // Output the serial
             string id = mfrc.uid.ToString();
-            if (id == "5B1F8D73")
+            if (id == karte)
             {
                 ergebniss = true; // Setze auf true statt 1
             }
