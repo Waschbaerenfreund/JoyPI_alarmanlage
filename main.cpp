@@ -20,6 +20,8 @@ masterpin zum deaktivieren des alarms
 #include <string>
 
 #include "MFRC522.h"
+#include "pin_eingabe.h" // Annahme: Diese Header-Datei enthält die Deklaration der Funktion in pin_eingabe.cpp
+
 const string richtiger_chip = "platzhalter";
 
 using namespace std;
@@ -27,7 +29,6 @@ using namespace std;
 void delay(int ms){
   usleep(ms*1000);
 }
-
 
 int rfid_kontrolle()
 {
@@ -46,6 +47,8 @@ int rfid_kontrolle()
         if( id == richtiger_chip)
         {
             //ausgabe auf lcd "rfid korrekt, bitte code eingeben"
+            cout <<id <<endl;
+            cout << "RFID korrekt, bitte Code eingeben" << endl;
             return 1;
         }
 
@@ -69,5 +72,19 @@ int eingabe_zum_scharfschalten()
             // abfrage ob aktiviern oder deaktivieren
         }
     }
-} 
+}
 
+int main() {
+    while (true) {
+        // Aufruf der Funktion aus pin_eingabe.cpp
+        int result = pin_eingabe(); // Annahme: pin_eingabe() ist die Funktion, die getestet werden soll
+
+        // Ausgabe des Ergebnisses
+        cout << "Ergebnis der Pin-Eingabe: " << result << endl;
+
+        // Kurze Verzögerung, um die Schleife nicht zu schnell laufen zu lassen
+        delay(1000);
+    }
+
+    return 0;
+}
