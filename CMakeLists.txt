@@ -8,11 +8,18 @@ project(${ProjectId} VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-file(GLOB all_Source_Files *.cpp *.c)
-add_executable(${PROJECT_NAME} ${all_Source_Files})
+# Fügen Sie die spezifischen Quell- und Header-Dateien hinzu
+set(SOURCE_FILES main.cpp pin_eingabe.cpp)
+set(HEADER_FILES pin_eingabe.h)
 
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
+
+# Find and link necessary libraries
 find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
-target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES})
+find_library(FMT_LIBRARIES NAMES fmt)
+find_library(SPI_LIBRARIES NAMES spidev)
+
+target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES} ${FMT_LIBRARIES} ${SPI_LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
