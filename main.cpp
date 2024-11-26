@@ -12,6 +12,8 @@ void delay(int ms){
 }
 
 bool rfid_kontrolle(MFRC522 &mfrc);
+bool watchdog();
+bool machen_wir_alarm();
 
 int main(){
     MFRC522 mfrc;
@@ -20,8 +22,23 @@ int main(){
     while(true){
         if (rfid_kontrolle(mfrc)) {
             cout << "Karte erkannt!" << endl;
+            // Anlage ein oder mit button matrix
+            if(true){
+                cout << "Anlage wird eingeschaltet" << endl;
+                //watchdog() funktion leuft im loop bis neuer chip erkannt wird oder alarm ausgelöst wird
+                //countdown() auf lcd countdown zum deaktieveren 
+                //alarm_alarm() alarm mit allem was dazugehört bis es mit anderem code deaktviert wird
+                
+
+            } else {
+                cout << "Anlage wird ausgeschaltet" << endl;
+            }
+
+
         }
         delay(100); // Reduziere CPU-Auslastung
+
+
     }
     return 0;
 }
@@ -46,4 +63,23 @@ bool rfid_kontrolle(MFRC522 &mfrc)
         }
     }
     return ergebniss;
+}
+
+
+bool watchdog()
+{
+    while (true)
+    {
+        if (machen_wir_alarm())
+        {
+            /* code */
+        }
+        
+    }
+    
+}
+
+bool machen_wir_alarm()
+{
+    
 }
