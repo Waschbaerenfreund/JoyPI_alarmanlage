@@ -43,9 +43,15 @@ int main() {
                 cout << "Anlage wird eingeschaltet" << endl;
                 anlage_aktiv = true;
                 countdown();
-                if (watchdog(mfrc)) {
-                    alarm_alarm();
+                while (rfid_kontrolle(mfrc))
+                {
+                    if (watchdog(mfrc)) 
+                    {
+                        alarm_alarm();
+                    }                
                 }
+                
+
             } else {
                 cout << "Anlage wird ausgeschaltet" << endl;
                 anlage_aktiv = false;
@@ -71,8 +77,8 @@ bool rfid_kontrolle(MFRC522 &mfrc) {
     return ergebnis;
 }
 
-bool watchdog(MFRC522 &mfrc) {
-    while (true) {
+bool watchdog(MFRC522 &mfrc) 
+{
         if (machen_wir_alarm()) {
             leds.fill(LED_COUNT, 0xFF0000);
             leds.render();
@@ -85,7 +91,6 @@ bool watchdog(MFRC522 &mfrc) {
                 return false;
             }
         }   
-    }
     return true; // Alarm wurde ausgelöst
 }
 
