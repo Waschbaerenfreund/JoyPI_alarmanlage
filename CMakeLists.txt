@@ -10,9 +10,9 @@ enable_testing()
 
 file(GLOB all_Source_Files *.cpp *.c)
 add_executable(${PROJECT_NAME} ${all_Source_Files})
-
+find_package(fmt REQUIRED)
 find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
-target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES})
+target_link_libraries(${ProjectId} ${WIRINGPI_LIBRARIES} fmt::fmt)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
