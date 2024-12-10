@@ -8,7 +8,7 @@
 using namespace std;
 
 const string karte = "5B1F8D73";
-const int BEWEGUNGSMELDER_PIN = 2; // Anpassen an den tatsächlichen Pin des Bewegungsmelders
+const int BEWEGUNGSMELDER_PIN = 23; // Anpassen an den tatsächlichen Pin des Bewegungsmelders
 const int LED_COUNT = 1; // Anzahl der LEDs
 
 WS2812 leds;
