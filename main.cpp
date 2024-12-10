@@ -45,7 +45,7 @@ int main() {
                 countdown();
                 while (rfid_kontrolle(mfrc))
                 {
-                    if (watchdog(mfrc)) 
+                    if (watchdog()) 
                     {
                         alarm_alarm();
                     }                
@@ -77,7 +77,7 @@ bool rfid_kontrolle(MFRC522 &mfrc) {
     return ergebnis;
 }
 
-bool watchdog(MFRC522 &mfrc) 
+bool watchdog()
 {
         if (machen_wir_alarm()) {
             leds.fill(LED_COUNT, 0xFF0000);
@@ -97,8 +97,10 @@ bool watchdog(MFRC522 &mfrc)
 bool machen_wir_alarm() {
     int bewegung = digitalRead(BEWEGUNGSMELDER_PIN);
     if (bewegung == HIGH) {
+        cout << "Bewegung erkannt!" << endl;
         return true;
     }
+
     return false;
 }
 
