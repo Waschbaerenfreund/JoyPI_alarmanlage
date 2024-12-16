@@ -7,10 +7,11 @@
 
 using namespace std;
 
-const string karte = "5B1F8D73";
-const int BEWEGUNGSMELDER_PIN = 23; // Anpassen an den tatsächlichen Pin des Bewegungsmelders
-const int LED_COUNT = 1; // Anzahl der LEDs
-bool alarm = false;
+const string karte1 = "5B1F8D73"; // Hauptkarte
+const string karte2 = "8A2C7E45"; // Ersatzkarte
+const int BEWEGUNGSMELDER_PIN = 23;
+const int LED_COUNT = 1;
+bool alarm_aktiv = false;
 
 WS2812 leds;
 
@@ -18,98 +19,88 @@ void delay(int ms) {
     usleep(ms * 1000);
 }
 
-bool rfid_kontrolle(MFRC522 &mfrc);
-bool watchdog(MFRC522 &mfrc);
-bool machen_wir_alarm();
+bool rfid_kontrolle(MFRC522 &mfrc, const string &karte);
+void ueberwachung(MFRC522 &mfrc);
+bool bewegung_erkannt();
 void countdown();
-void alarm_alarm();
+void alarm_auslosen();
+void alarm_deaktivieren(MFRC522 &mfrc);
+bool pin_pruefen(int versuche, int pin_laenge);
 
 int main() {
-    wiringPiSetup(); // Initialisiere wiringPi
+    if (wiringPiSetup() == -1) {
+        cout << "WiringPi Setup fehlgeschlagen. Beende Programm." << endl;
+        return 1;
+    }
     
     leds.reset();
     leds.setup(LED_COUNT);
     leds.init();
 
     MFRC522 mfrc;
-    mfrc.PCD_Init();
+    if (!mfrc.PCD_Init()) {
+        cout << "RFID-Leser Initialisierung fehlgeschlagen. Beende Programm." << endl;
+        return 1;
+    }
 
     bool anlage_aktiv = false;
 
-    while(true) {
-        if (rfid_kontrolle(mfrc)) {
+    while (true) {
+        if (rfid_kontrolle(mfrc, karte1)) {
             cout << "Karte erkannt!" << endl;
             
             if (!anlage_aktiv) {
                 cout << "Anlage wird eingeschaltet" << endl;
                 anlage_aktiv = true;
                 countdown();
-                while (!rfid_kontrolle(mfrc))
-                {
-                    if (watchdog()) 
-                    {
-                        alarm_alarm();
-                    }                
-                }
-                
-
+                ueberwachung(mfrc);
             } else {
                 cout << "Anlage wird ausgeschaltet" << endl;
                 anlage_aktiv = false;
+                alarm_deaktivieren(mfrc);
             }
         }
-        delay(100); // Reduziere CPU-Auslastung
+        delay(100);
     }
     return 0;
 }
 
-bool rfid_kontrolle(MFRC522 &mfrc) {
-    bool ergebnis = false;
-
-    if (mfrc.PICC_IsNewCardPresent()) {
-        if (mfrc.PICC_ReadCardSerial()) {
-            string id = mfrc.uid.ToString();
-            if (id == karte) {
-                ergebnis = true;
-            }
+bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
+    if (mfrc.PICC_IsNewCardPresent() && mfrc.PICC_ReadCardSerial()) {
+        string id = mfrc.uid.ToString();
+        if (id == karte) {
             delay(1000);
+            return true;
         }
     }
-    return ergebnis;
-}
-
-bool watchdog()
-{
-        if (machen_wir_alarm() || alarm) {
-            leds.fill(LED_COUNT, 0xFF0000);
-            leds.render();
-            delay(500);
-            leds.fill(LED_COUNT, 0x00FF00);
-            leds.render();
-            delay(500);
-
-            if (rfid_kontrolle(mfrc)) {
-                return false;
-            }
-        }   
-    return true; // Alarm wurde ausgelöst
-}
-
-bool machen_wir_alarm() {
-    int bewegung = digitalRead(BEWEGUNGSMELDER_PIN);
-    if (bewegung == HIGH) {
-        cout << "Bewegung erkannt!" << endl;
-        alarm = true;
-        return true;
-    }
-
     return false;
 }
 
+void ueberwachung(MFRC522 &mfrc) {
+    while (true) {
+        if (bewegung_erkannt()) {
+            alarm_auslosen();
+            while (alarm_aktiv) {
+                if (rfid_kontrolle(mfrc, karte1)) {
+                    alarm_deaktivieren(mfrc);
+                    return;
+                }
+                delay(100);
+            }
+        }
+        if (rfid_kontrolle(mfrc, karte1)) {
+            return;  // Beende Überwachung, wenn RFID-Karte erkannt wird
+        }
+        delay(100);
+    }
+}
+
+bool bewegung_erkannt() {
+    return digitalRead(BEWEGUNGSMELDER_PIN) == HIGH;
+}
+
 void countdown() {
-    // Implementieren Sie hier den Countdown
     cout << "Countdown gestartet..." << endl;
-    // Beispiel: 10 Sekunden Countdown
     for (int i = 10; i > 0; i--) {
         cout << i << "..." << endl;
         delay(1000);
@@ -117,17 +108,59 @@ void countdown() {
     cout << "Anlage aktiviert!" << endl;
 }
 
-void alarm_alarm() {
+void alarm_auslosen() {
     cout << "ALARM! ALARM!" << endl;
-    // Implementieren Sie hier die Alarmlogik
-    while (true) {
-        leds.fill(LED_COUNT, 0xFF0000); // Rot
-        leds.render();
-        delay(500);
-        leds.fill(LED_COUNT, 0x0000FF); // Blau
-        leds.render();
-        delay(500);
-        // Hier könnte man einen Piepton oder andere Alarmaktionen hinzufügen
-        // Überprüfen Sie hier auch, ob der Alarm deaktiviert werden soll
+    alarm_aktiv = true;
+}
+
+void alarm_deaktivieren(MFRC522 &mfrc) {
+    int versuche = 0;
+
+    while (versuche < 3) { // Maximal drei Versuche für den PIN
+        cout << "Bitte geben Sie den 4-stelligen PIN ein: ";
+        if (pin_pruefen(versuche, 4)) { // Prüft den PIN
+            alarm_aktiv = false;
+            leds.fill(LED_COUNT, 0x000000); // LEDs ausschalten
+            leds.render();
+            cout << "Alarm deaktiviert." << endl;
+            return;
+        } else {
+            versuche++;
+            cout << "Falscher PIN! Noch " << (3 - versuche) << " Versuche übrig." << endl;
+        }
     }
+
+    // Nach drei Fehlversuchen
+    cout << "Zu viele Fehlversuche! Alarm bleibt aktiv." << endl;
+
+    while (true) { // Nur mit Ersatzkarte und 6-stelligem PIN deaktivierbar
+        if (rfid_kontrolle(mfrc, karte2)) { 
+            cout << "Ersatzkarte erkannt! Bitte geben Sie den 6-stelligen PIN ein: ";
+            if (pin_pruefen(0, 6)) { // Prüft den neuen PIN
+                alarm_aktiv = false;
+                leds.fill(LED_COUNT, 0x000000); // LEDs ausschalten
+                leds.render();
+                cout << "Alarm mit Ersatzkarte deaktiviert." << endl;
+                return;
+            } else {
+                cout << "Falscher PIN! Alarm bleibt aktiv." << endl;
+            }
+        } else {
+            cout << "Warten auf Ersatzkarte..." << endl;
+            delay(3000);
+        }
+    }
+}
+
+bool pin_pruefen(int versuche, int pin_laenge) {
+    string korrekter_pin = (pin_laenge == 4) ? "1234" : "654321"; // Beispiel-PINs
+    string eingabe;
+
+    cin >> eingabe;
+
+    if (eingabe.length() == pin_laenge && eingabe == korrekter_pin) {
+        return true; // Richtiger PIN
+    }
+
+    return false; // Falscher PIN
 }
