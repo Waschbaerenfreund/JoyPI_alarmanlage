@@ -10,6 +10,7 @@ using namespace std;
 const string karte = "5B1F8D73";
 const int BEWEGUNGSMELDER_PIN = 23; // Anpassen an den tatsächlichen Pin des Bewegungsmelders
 const int LED_COUNT = 1; // Anzahl der LEDs
+bool alarm = false;
 
 WS2812 leds;
 
@@ -43,7 +44,7 @@ int main() {
                 cout << "Anlage wird eingeschaltet" << endl;
                 anlage_aktiv = true;
                 countdown();
-                while (rfid_kontrolle(mfrc))
+                while (!rfid_kontrolle(mfrc))
                 {
                     if (watchdog()) 
                     {
@@ -79,7 +80,7 @@ bool rfid_kontrolle(MFRC522 &mfrc) {
 
 bool watchdog()
 {
-        if (machen_wir_alarm()) {
+        if (machen_wir_alarm() || alarm) {
             leds.fill(LED_COUNT, 0xFF0000);
             leds.render();
             delay(500);
@@ -98,6 +99,7 @@ bool machen_wir_alarm() {
     int bewegung = digitalRead(BEWEGUNGSMELDER_PIN);
     if (bewegung == HIGH) {
         cout << "Bewegung erkannt!" << endl;
+        alarm = true;
         return true;
     }
 
