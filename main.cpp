@@ -28,6 +28,8 @@ void alarm_deaktivieren(MFRC522 &mfrc);
 bool pin_pruefen(int versuche, int pin_laenge);
 
 int main() {
+
+    cout << "Ich laufe" << endl;
     if (wiringPiSetup() == -1) {
         cout << "WiringPi Setup fehlgeschlagen. Beende Programm." << endl;
         return 1;
@@ -68,6 +70,7 @@ int main() {
 bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
     if (mfrc.PICC_IsNewCardPresent() && mfrc.PICC_ReadCardSerial()) {
         string id = mfrc.uid.ToString();
+        cout << "Gelesene Karte: " << id << endl; // Ausgabe der gelesenen Karte
         if (id == karte) {
             delay(1000);
             return true;
