@@ -38,10 +38,10 @@ int main() {
     leds.init();
 
     MFRC522 mfrc;
-    if (!mfrc.PCD_Init()) {
+    /*if (!mfrc.PCD_Init()) {
         cout << "RFID-Leser Initialisierung fehlgeschlagen. Beende Programm." << endl;
         return 1;
-    }
+    }*/
 
     bool anlage_aktiv = false;
 
