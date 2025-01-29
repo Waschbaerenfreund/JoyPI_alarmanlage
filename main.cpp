@@ -7,9 +7,9 @@
 
 using namespace std;
 
-const string karte1 = "5B1F8D73"; // Hauptkarte
+const string karte1 = "DB465B73"; // Hauptkarte
 const string karte2 = "8A2C7E45"; // Ersatzkarte
-const int BEWEGUNGSMELDER_PIN = 23;
+const int BEWEGUNGSMELDER_PIN = 26;
 const int LED_COUNT = 1;
 bool alarm_aktiv = false;
 
@@ -36,14 +36,12 @@ int main() {
     }
     
     leds.reset();
+    pinMode(BEWEGUNGSMELDER_PIN, INPUT);
+    pullUpDnControl(BEWEGUNGSMELDER_PIN, PUD_DOWN);
     leds.setup(LED_COUNT);
     leds.init();
 
     MFRC522 mfrc;
-    /*if (!mfrc.PCD_Init()) {
-        cout << "RFID-Leser Initialisierung fehlgeschlagen. Beende Programm." << endl;
-        return 1;
-    }*/
 
     bool anlage_aktiv = false;
 
@@ -81,7 +79,7 @@ bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
 
 void ueberwachung(MFRC522 &mfrc) {
     while (true) {
-        if (bewegung_erkannt()) {
+        if (digitalRead(BEWEGUNGSMELDER_PIN)) {
             alarm_auslosen();
             while (alarm_aktiv) {
                 if (rfid_kontrolle(mfrc, karte1)) {
@@ -98,9 +96,7 @@ void ueberwachung(MFRC522 &mfrc) {
     }
 }
 
-bool bewegung_erkannt() {
-    return digitalRead(BEWEGUNGSMELDER_PIN) == HIGH;
-}
+
 
 void countdown() {
     cout << "Countdown gestartet..." << endl;
@@ -113,6 +109,14 @@ void countdown() {
 
 void alarm_auslosen() {
     cout << "ALARM! ALARM!" << endl;
+    for (int i = 0; i < 10; i++) { // Blinkt 10 Mal
+        leds.fill(LED_COUNT, 0xFF0000); // LEDs rot
+        leds.render();
+        delay(500);
+        leds.fill(LED_COUNT, 0x0000FF); // LEDs blau
+        leds.render();
+        delay(500);
+    }
     alarm_aktiv = true;
 }
 
