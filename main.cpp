@@ -7,8 +7,9 @@
 
 using namespace std;
 
+bool anlage_aktiv = false;
 const string karte1 = "DB465B73"; // Hauptkarte
-const string karte2 = "8A2C7E45"; // Ersatzkarte
+const string karte2 = "DB465B73"; // Ersatzkarte
 const int BEWEGUNGSMELDER_PIN = 26;
 const int LED_COUNT = 1;
 bool alarm_aktiv = false;
@@ -43,7 +44,6 @@ int main() {
 
     MFRC522 mfrc;
 
-    bool anlage_aktiv = false;
 
     while (true) {
         if (rfid_kontrolle(mfrc, karte1)) {
@@ -79,11 +79,18 @@ bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
 
 void ueberwachung(MFRC522 &mfrc) {
     while (true) {
-        if (digitalRead(BEWEGUNGSMELDER_PIN)) {
-            alarm_auslosen();
+        if (/*digitalRead(BEWEGUNGSMELDER_PIN) hier nochmal ändern kp warum das nicht geht*/ true) {
+            alarm_aktiv = true;
+            
             while (alarm_aktiv) {
+                alarm_auslosen();
                 if (rfid_kontrolle(mfrc, karte1)) {
                     alarm_deaktivieren(mfrc);
+                    //leds auschalten
+                    leds.fill(LED_COUNT, 0x000000);
+                    leds.render();
+                    alarm_aktiv = false;
+
                     return;
                 }
                 delay(100);
@@ -109,14 +116,14 @@ void countdown() {
 
 void alarm_auslosen() {
     cout << "ALARM! ALARM!" << endl;
-    for (int i = 0; i < 10; i++) { // Blinkt 10 Mal
-        leds.fill(LED_COUNT, 0xFF0000); // LEDs rot
-        leds.render();
-        delay(500);
-        leds.fill(LED_COUNT, 0x0000FF); // LEDs blau
-        leds.render();
-        delay(500);
-    }
+    leds.fill(LED_COUNT, 0xFF0000); // LEDs rot
+    leds.render();
+    delay(500);
+    leds.fill(LED_COUNT, 0x0000FF); // LEDs blau
+    leds.render();
+    delay(500);
+    //Piepen des buzzers eingang 24
+
     alarm_aktiv = true;
 }
 
@@ -129,7 +136,9 @@ void alarm_deaktivieren(MFRC522 &mfrc) {
             alarm_aktiv = false;
             leds.fill(LED_COUNT, 0x000000); // LEDs ausschalten
             leds.render();
+            anlage_aktiv = false;
             cout << "Alarm deaktiviert." << endl;
+
             return;
         } else {
             versuche++;
@@ -139,6 +148,7 @@ void alarm_deaktivieren(MFRC522 &mfrc) {
 
     // Nach drei Fehlversuchen
     cout << "Zu viele Fehlversuche! Alarm bleibt aktiv." << endl;
+    cout << "Bitte verwenden Sie die Ersatzkarte." << endl;
 
     while (true) { // Nur mit Ersatzkarte und 6-stelligem PIN deaktivierbar
         if (rfid_kontrolle(mfrc, karte2)) { 
@@ -148,14 +158,13 @@ void alarm_deaktivieren(MFRC522 &mfrc) {
                 leds.fill(LED_COUNT, 0x000000); // LEDs ausschalten
                 leds.render();
                 cout << "Alarm mit Ersatzkarte deaktiviert." << endl;
+                anlage_aktiv = false;
                 return;
             } else {
                 cout << "Falscher PIN! Alarm bleibt aktiv." << endl;
             }
-        } else {
-            cout << "Warten auf Ersatzkarte..." << endl;
-            delay(3000);
         }
+        alarm_auslosen();
     }
 }
 
