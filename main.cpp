@@ -10,7 +10,9 @@ using namespace std;
 bool anlage_aktiv = false;
 const string karte1 = "DB465B73"; // Hauptkarte
 const string karte2 = "DB465B73"; // Ersatzkarte
-const int BEWEGUNGSMELDER_PIN = 17;
+const int BEWEGUNGSMELDER_PIN = 23;
+const int BUZZER_PIN = 18;
+const int VIBRATOR = 27;
 const int LED_COUNT = 1;
 bool alarm_aktiv = false;
 
@@ -31,13 +33,16 @@ bool pin_pruefen(int versuche, int pin_laenge);
 int main() {
 
     cout << "Ich laufe" << endl;
-    if (wiringPiSetup() == -1) {
+    if (wiringPiSetupGpio() == -1) {
         cout << "WiringPi Setup fehlgeschlagen. Beende Programm." << endl;
         return 1;
     }
     
     leds.reset();
     pinMode(BEWEGUNGSMELDER_PIN, INPUT);
+    pinMode(BUZZER_PIN, OUTPUT);
+    pinMode(VIBRATOR, OUTPUT);
+
     leds.setup(LED_COUNT);
     leds.init();
 
@@ -78,6 +83,8 @@ bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
 
 void ueberwachung(MFRC522 &mfrc) {
     while (true) {
+        int v = digitalRead(BEWEGUNGSMELDER_PIN);
+        cout << "Bewegungsmelder: " << v << endl;
         if (digitalRead(BEWEGUNGSMELDER_PIN) /*hier nochmal äncdern kp warum das nicht geht*/ ) {
             alarm_aktiv = true;
 
@@ -117,9 +124,13 @@ void countdown() {
 void alarm_auslosen() {
     cout << "ALARM! ALARM!" << endl;
     leds.fill(LED_COUNT, 0xFF0000); // LEDs rot
+    digitalWrite(BUZZER_PIN, HIGH); // Buzzer aktivieren
+    digitalWrite(VIBRATOR, HIGH); // Vibrator aktivieren
     leds.render();
     delay(500);
     leds.fill(LED_COUNT, 0x0000FF); // LEDs blau
+    digitalWrite(BUZZER_PIN, LOW); // Buzzer deaktivieren
+    digitalWrite(VIBRATOR, LOW); // Vibrator deaktivieren
     leds.render();
     delay(500);
     //Piepen des buzzers eingang 24
