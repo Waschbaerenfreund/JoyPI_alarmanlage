@@ -10,7 +10,7 @@ using namespace std;
 bool anlage_aktiv = false;
 const string karte1 = "DB465B73"; // Hauptkarte
 const string karte2 = "DB465B73"; // Ersatzkarte
-const int BEWEGUNGSMELDER_PIN = 26;
+const int BEWEGUNGSMELDER_PIN = 17;
 const int LED_COUNT = 1;
 bool alarm_aktiv = false;
 
@@ -38,7 +38,6 @@ int main() {
     
     leds.reset();
     pinMode(BEWEGUNGSMELDER_PIN, INPUT);
-    pullUpDnControl(BEWEGUNGSMELDER_PIN, PUD_DOWN);
     leds.setup(LED_COUNT);
     leds.init();
 
@@ -79,8 +78,9 @@ bool rfid_kontrolle(MFRC522 &mfrc, const string &karte) {
 
 void ueberwachung(MFRC522 &mfrc) {
     while (true) {
-        if (/*digitalRead(BEWEGUNGSMELDER_PIN) hier nochmal ändern kp warum das nicht geht*/ true) {
+        if (digitalRead(BEWEGUNGSMELDER_PIN) /*hier nochmal äncdern kp warum das nicht geht*/ ) {
             alarm_aktiv = true;
+
             
             while (alarm_aktiv) {
                 alarm_auslosen();
